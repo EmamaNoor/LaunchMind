@@ -1,0 +1,24 @@
+[project]
+name = "launchmind"
+version = "0.1.0"
+description = "Multi-agent system that autonomously runs a micro-startup"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "openai",
+    "redis",
+    "requests",
+    "pydantic",
+    "pydantic-settings",
+    "python-dotenv",
+    "sendgrid",
+]
+
+[project.scripts]
+launchmind = "launchmind.app:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "integration: tests that call real external APIs",
+]
