@@ -6,10 +6,10 @@ class Settings(BaseSettings):
 
     DEEPSEEK_API_KEY: str
     UPSTASH_REDIS_URL: str
-    GITHUB_TOKEN: str
-    GITHUB_REPO: str
-    SLACK_BOT_TOKEN: str
+    GITHUB_TOKEN: str = ""
+    GITHUB_REPO: str = ""
+    SLACK_BOT_TOKEN: str = ""
     SLACK_CHANNEL: str = "#launches"
-    SENDGRID_API_KEY: str
-    SENDGRID_FROM_EMAIL: str
-    TEST_EMAIL: str
+    SENDGRID_API_KEY: str = ""
+    SENDGRID_FROM_EMAIL: str = ""
+    TEST_EMAIL: str = ""
