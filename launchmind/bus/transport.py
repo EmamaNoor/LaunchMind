@@ -29,9 +29,11 @@ class MessageBus:
 
     def receive(self, agent_name: str) -> list[Message]:
         inbox_key = f"{INBOX_PREFIX}{agent_name}"
-        raw_messages = self._redis.lrange(inbox_key, 0, -1)
-        self._redis.delete(inbox_key)
-        return [Message.from_json(raw) for raw in raw_messages]
+        with self._redis.pipeline(transaction=True) as pipe:
+            pipe.lrange(inbox_key, 0, -1)
+            pipe.delete(inbox_key)
+            results = pipe.execute()
+        return [Message.from_json(raw) for raw in results[0]]
 
     def get_history(self) -> list[Message]:
         raw_messages = self._redis.lrange(HISTORY_KEY, 0, -1)

@@ -43,7 +43,10 @@ class Agent(ABC):
         while self._running:
             messages = self.bus.receive(self.name)
             for msg in messages:
-                self.handle_message(msg)
+                try:
+                    self.handle_message(msg)
+                except Exception:
+                    self.logger.exception("Error handling message %s", msg.message_id)
             time.sleep(poll_interval)
 
     def stop(self) -> None:

@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     UPSTASH_REDIS_URL: str
     GITHUB_TOKEN: str = ""
     GITHUB_REPO: str = ""
+    GITHUB_LANDING_REPO: str = "EmamaNoor/LaunchMind-LandingPages"
     SLACK_BOT_TOKEN: str = ""
     SLACK_CHANNEL: str = "#launches"
     SENDGRID_API_KEY: str = ""
