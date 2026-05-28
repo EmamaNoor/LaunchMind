@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeighborBite – Fresh Home-Cooked Lunch, Delivered Nearby</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #1a1a2e;
+            background-color: #f9f9fc;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: white;
+            padding: 100px 0 80px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: linear-gradient(to top, #f9f9fc, transparent);
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+        }
+
+        .hero .subheadline {
+            font-size: 1.25rem;
+            max-width: 700px;
+            margin: 0 auto 36px;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: #e94560;
+            color: white;
+            padding: 16px 40px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(233, 69, 96, 0.3);
+            border: none;
+            cursor: pointer;
+        }
+
+        .cta-button:hover {
+            background: #d63851;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(233, 69, 96, 0.4);
+        }
+
+        .cta-button:active {
+            transform: translateY(0);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 80px 0 60px;
+            background: #ffffff;
+        }
+
+        .features .container {
+            display: flex;
+            flex-direction: column;
+            gap: 64px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 32px;
+            background: #f9f9fc;
+            border-radius: 20px;
+            padding: 40px 48px;
+            transition: box-shadow 0.3s ease;
+            border-left: 6px solid #0f3460;
+        }
+
+        .feature-item:nth-child(even) {
+            border-left-color: #e94560;
+            flex-direction: row-reverse;
+        }
+
+        .feature-icon {
+            flex-shrink: 0;
+            width: 64px;
+            height: 64px;
+            background: #e94560;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: white;
+        }
+
+        .feature-item:nth-child(even) .feature-icon {
+            background: #0f3460;
+        }
+
+        .feature-content {
+            flex: 1;
+        }
+
+        .feature-content h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #1a1a2e;
+        }
+
+        .feature-content p {
+            font-size: 1.05rem;
+            color: #4a4a6a;
+            line-height: 1.7;
+        }
+
+        .hygiene-badge {
+            display: inline-block;
+            background: #27ae60;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 20px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        /* Personas Section */
+        .personas {
+            padding: 80px 0;
+            background: #f0f2f8;
+        }
+
+        .personas h2 {
+            text-align: center;
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 48px;
+            color: #1a1a2e;
+        }
+
+        .persona-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+        }
+
+        .persona-card {
+            background: white;
+            border-radius: 20px;
+            padding: 36px 28px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .persona-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.08);
+        }
+
+        .persona-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #e94560;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: white;
+        }
+
+        .persona-card:nth-child(2) .persona-avatar {
+            background: #0f3460;
+        }
+
+        .persona-card:nth-child(3) .persona-avatar {
+            background: #27ae60;
+        }
+
+        .persona-card h4 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .persona-role {
+            font-size: 0.9rem;
+            color: #777;
+            font-weight: 600;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .persona-pain {
+            font-size: 0.95rem;
+            color: #4a4a6a;
+            line-height: 1.6;
+        }
+
+        /* User Stories Section */
+        .user-stories {
+            padding: 80px 0;
+            background: #ffffff;
+        }
+
+        .user-stories h2 {
+            text-align: center;
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 48px;
+            color: #1a1a2e;
+        }
+
+        .story-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .story-card {
+            background: #f9f9fc;
+            border-radius: 16px;
+            padding: 32px 28px;
+            border-left: 4px solid #0f3460;
+            position: relative;
+        }
+
+        .story-card::before {
+            content: '"';
+            font-size: 4rem;
+            position: absolute;
+            top: 8px;
+            right: 20px;
+            color: rgba(15, 52, 96, 0.08);
+            font-family: Georgia, serif;
+            line-height: 1;
+        }
+
+        .story-card p {
+            font-size: 1rem;
+            color: #2a2a4a;
+            line-height: 1.7;
+            font-style: italic;
+        }
+
+        .story-author {
+            margin-top: 16px;
+            font-weight: 700;
+            color: #e94560;
+            font-style: normal;
+            font-size: 0.9rem;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 80px 0;
+            background: linear-gradient(135deg, #1a1a2e, #0f3460);
+            color: white;
+            text-align: center;
+        }
+
+        .cta-section h2 {
+            font-size: 2.4rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .cta-section p {
+            font-size: 1.15rem;
+            opacity: 0.9;
+            margin-bottom: 36px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-section .cta-button {
+            background: #e94560;
+        }
+
+        .cta-section .cta-button:hover {
+            background: #d63851;
+        }
+
+        /* Footer */
+        .footer {
+            background: #1a1a2e;
+            color: rgba(255,255,255,0.6);
+            text-align: center;
+            padding: 32px 0;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .persona-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .story-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            .hero .subheadline {
+                font-size: 1.05rem;
+                padding: 0 16px;
+            }
+            .hero {
+                padding: 70px 0 60px;
+            }
+
+            .feature-item {
+                flex-direction: column !important;
+                padding: 28px 24px;
+                gap: 16px;
+            }
+
+            .feature-icon {
+                width: 56px;
+                height: 56px;
+                font-size: 24px;
+            }
+
+            .persona-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .story-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-section h2 {
+                font-size: 1.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+            .container {
+                padding: 0 16px;
+            }
+            .feature-item {
+                padding: 20px 16px;
+            }
+            .cta-button {
+                padding: 14px 32px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Fresh Home-Cooked Lunch, Delivered Nearby</h1>
+            <p class="subheadline">NeighborBite connects office workers with verified home cooks in your area. Enjoy healthy, affordable meals made with care — and delivered right to your desk.</p>
+            <a href="#" class="cta-button">Get Started — Find Your Lunch</a>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="feature-item">
+                <div class="feature-icon">✓</div>
+                <div class="feature-content">
+                    <h3>Cook Verification</h3>
+                    <p>Every home cook submits identity documents and kitchen photos. Our team reviews and approves each profile before they can list meals — so you always know who's cooking for you.</p>
+                </div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon">🥗</div>
+                <div class="feature-content">
+                    <h3>Meal Listings with <span class="hygiene-badge">Hygiene Badge</span></h3>
+                    <p>Cooks create detailed meal posts with photos, ingredients, and allergens. Each listing shows a visible hygiene badge after passing our guidelines — trust at a glance.</p>
+                </div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon">📍</div>
+                <div class="feature-content">
+                    <h3>Location-Based Search</h3>
+                    <p>Enter your work address to see only meals from cooks within a defined radius. No more waiting — your lunch arrives fresh and on time, every time.</p>
+                </div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon">🔒</div>
+                <div class="feature-content">
+                    <h3>Ordering & Prepayment</h3>
+                    <p>Order with secure payment, and cooks receive instant notifications to confirm availability. No cash, no hassle — just a smooth transaction from kitchen to desk.</p>
+                </div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon">⭐</div>
+                <div class="feature-content">
+                    <h3>Rating & Review System</h3>
+                    <p>Both parties rate each other after every transaction. Low-rated cooks are suspended pending review — ensuring quality and accountability for everyone.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Personas Section -->
+    <section class="personas" id="personas">
+        <div class="container">
+            <h2>Built for Everyone</h2>
+            <div class="persona-grid">
+                <div class="persona-card">
+                    <div class="persona-avatar">👩‍🍳</div>
+                    <h4>Home Cook Sarah</h4>
+                    <div class="persona-role">Meal Provider</div>
+                    <p class="persona-pain">"I love cooking, but monetizing my skills felt impossible. NeighborBite verifies my kitchen and helps me reach nearby office workers safely."</p>
+                </div>
+                <div class="persona-card">
+                    <div class="persona-avatar">👨‍💼</div>
+                    <h4>Office Worker Tom</h4>
+                    <div class="persona-role">Lunch Seeker</div>
+                    <p class="persona-pain">"Healthy lunch options near my office are scarce and expensive. With NeighborBite, I find fresh, affordable meals from verified cooks nearby."</p>
+                </div>
+                <div class="persona-card">
+                    <div class="persona-avatar">👩‍💻</div>
+                    <h4>Admin Lisa</h4>
+                    <div class="persona-role">Platform Operator</div>
+                    <p class="persona-pain">"Enforcing food safety at scale is tough. NeighborBite's verification and hygiene badge system makes it easy to maintain trust as we grow."</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- User Stories Section -->
+    <section class="user-stories" id="stories">
+        <div class="container">
+            <h2>Real Stories, Real Impact</h2>
+            <div class="story-grid">
+                <div class="story-card">
+                    <p>"As a home cook, I want to verify my kitchen through photo submission, so that I can build trust and start selling meals to office workers."</p>
+                    <div class="story-author">— Home Cook Sarah</div>
+                </div>
+                <div class="story-card">
+                    <p>"As an office worker, I want to see only nearby cooks with hygiene badges, so that I can order lunch confidently without worrying about food safety."</p>
+                    <div class="story-author">— Office Worker Tom</div>
+                </div>
+                <div class="story-card">
+                    <p>"As an admin, I want to review hygiene guidelines compliance before approving a cook, so that the platform maintains high safety standards and user trust."</p>
+                    <div class="story-author">— Admin Lisa</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <h2>Ready to Transform Lunchtime?</h2>
+            <p>Join NeighborBite today — whether you're a home cook ready to share your talent or an office worker craving a fresh, reliable lunch.</p>
+            <a href="#" class="cta-button">Get Started Now</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 NeighborBite. Fresh, local, trusted.</p>
+        </div>
+    </footer>
+</body>
+</html>
