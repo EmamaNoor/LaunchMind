@@ -130,10 +130,49 @@ def create_pr(
 
 
 @retry(max_attempts=3, delay=1.0)
+def get_file_content(token: str, repo: str, path: str, branch: str) -> str:
+    import base64
+    r = requests.get(
+        f"{API_BASE}/repos/{repo}/contents/{path}",
+        headers=_headers(token),
+        params={"ref": branch},
+    )
+    r.raise_for_status()
+    return base64.b64decode(r.json()["content"]).decode()
+
+
+@retry(max_attempts=3, delay=1.0)
+def create_review(
+    token: str,
+    repo: str,
+    pr_number: int,
+    commit_id: str,
+    body: str,
+    event: str,
+    comments: list,
+) -> str:
+    r = requests.post(
+        f"{API_BASE}/repos/{repo}/pulls/{pr_number}/reviews",
+        headers=_headers(token),
+        json={
+            "commit_id": commit_id,
+            "body": body,
+            "event": event,
+            "comments": comments,
+        },
+    )
+    r.raise_for_status()
+    url = r.json()["html_url"]
+    logger.info("Posted PR review on #%d: %s", pr_number, url)
+    return url
+
+
+@retry(max_attempts=3, delay=1.0)
 def post_review_comment(
     token: str,
     repo: str,
     pr_number: int,
+    commit_id: str,
     body: str,
     path: str,
     position: int = 1,
@@ -141,7 +180,7 @@ def post_review_comment(
     r = requests.post(
         f"{API_BASE}/repos/{repo}/pulls/{pr_number}/comments",
         headers=_headers(token),
-        json={"body": body, "path": path, "position": position, "commit_id": ""},
+        json={"body": body, "path": path, "position": position, "commit_id": commit_id},
     )
     r.raise_for_status()
     logger.info("Posted review comment on PR #%d", pr_number)

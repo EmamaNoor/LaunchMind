@@ -10,6 +10,7 @@ from launchmind.agents.ceo import CEOAgent
 from launchmind.agents.product import ProductAgent
 from launchmind.agents.engineer import EngineerAgent
 from launchmind.agents.marketing import MarketingAgent
+from launchmind.agents.qa import QAAgent
 
 logger = logging.getLogger(__name__)
 
@@ -29,54 +30,60 @@ def main():
     logger.info("LaunchMind starting with idea: %s", idea)
 
     ceo = CEOAgent(bus, settings)
-    product = ProductAgent(bus, settings)
-    engineer = EngineerAgent(bus, settings)
-    marketing = MarketingAgent(bus, settings)
-
-    agents = [product, engineer, marketing]
+    agents = [
+        ProductAgent(bus, settings),
+        EngineerAgent(bus, settings),
+        MarketingAgent(bus, settings),
+        QAAgent(bus, settings),
+    ]
     for agent in agents:
-        t = threading.Thread(target=agent.listen, daemon=True)
-        t.start()
+        threading.Thread(target=agent.listen, daemon=True).start()
 
-    tasks = ceo._decompose_idea(idea)
-    logger.info("CEO decomposed idea into %d agent tasks", len(tasks))
+    summary = ceo.run(idea)
+    _print_summary(summary)
 
-    task_msg = ceo._dispatch_task("product", tasks["product_task"])
-    product_result = ceo._wait_and_review("product", task_msg.message_id)
+    for agent in agents:
+        agent.stop()
 
+
+def _print_summary(summary: dict) -> None:
     print("\n" + "=" * 60)
-    print("PRODUCT SPEC (approved by CEO)")
+    print("PRODUCT SPEC")
     print("=" * 60)
-    print(json.dumps(product_result.payload, indent=2))
-
-    product_spec = product_result.payload
-
-    # Dispatch Engineer and Marketing in parallel
-    ceo._dispatch_task(
-        "engineer",
-        {"spec": product_spec, **tasks.get("engineer_task", {})},
-    )
-    ceo._dispatch_task("marketing", product_spec)
-
-    engineer_result = ceo._wait_for("engineer")
-    marketing_result = ceo._wait_for("marketing")
+    print(json.dumps(summary["phases"].get("product", {}), indent=2))
 
     print("\n" + "=" * 60)
     print("ENGINEER OUTPUT")
     print("=" * 60)
-    print(json.dumps(engineer_result.payload, indent=2))
+    eng = summary["phases"].get("engineer", {})
+    print(f"PR:    {eng.get('pr_url', 'N/A')}")
+    print(f"Issue: {eng.get('issue_url', 'N/A')}")
 
     print("\n" + "=" * 60)
-    print("MARKETING COPY (approved by CEO)")
+    print("MARKETING COPY")
     print("=" * 60)
-    copy = marketing_result.payload
-    print(f"Tagline:     {copy.get('tagline', '')}")
-    print(f"Description: {copy.get('description', '')}")
-    social = copy.get("social_posts", {})
+    mkt = summary["phases"].get("marketing", {})
+    print(f"Tagline:     {mkt.get('tagline', '')}")
+    print(f"Description: {mkt.get('description', '')}")
+    social = mkt.get("social_posts", {})
     print(f"Twitter:     {social.get('twitter', '')}")
-    print(f"LinkedIn:    {social.get('linkedin', '')}")
-    cold = copy.get("cold_email", {})
+    cold = mkt.get("cold_email", {})
     print(f"Email Subj:  {cold.get('subject', '')}")
 
-    for agent in agents:
-        agent.stop()
+    print("\n" + "=" * 60)
+    print("QA VERDICT")
+    print("=" * 60)
+    qa = summary["phases"].get("qa", {})
+    print(f"Verdict: {qa.get('verdict', 'N/A').upper()}")
+    print(f"Summary: {qa.get('summary', '')}")
+    if qa.get("review_url"):
+        print(f"Review:  {qa['review_url']}")
+    issues = qa.get("issues", [])
+    if issues:
+        print("\nIssues:")
+        for issue in issues:
+            sev = issue.get("severity", "minor").upper()
+            desc = issue.get("description", "")
+            line = issue.get("line")
+            loc = f" (line {line})" if line else ""
+            print(f"  [{sev}]{loc} {desc}")

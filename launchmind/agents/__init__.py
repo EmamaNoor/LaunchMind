@@ -3,5 +3,6 @@ from launchmind.agents.ceo import CEOAgent
 from launchmind.agents.product import ProductAgent
 from launchmind.agents.engineer import EngineerAgent
 from launchmind.agents.marketing import MarketingAgent
+from launchmind.agents.qa import QAAgent
 
-__all__ = ["Agent", "CEOAgent", "ProductAgent", "EngineerAgent", "MarketingAgent"]
+__all__ = ["Agent", "CEOAgent", "ProductAgent", "EngineerAgent", "MarketingAgent", "QAAgent"]

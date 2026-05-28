@@ -69,9 +69,8 @@ class ProductAgent(Agent):
 
     def _distribute_spec(self, spec: dict, parent_id: str) -> None:
         self.send_message("engineer", MessageType.RESULT, spec, parent_id)
-        self.send_message("marketing", MessageType.RESULT, spec, parent_id)
         self.send_message("ceo", MessageType.RESULT, spec, parent_id)
-        self.logger.info("Spec sent to engineer, marketing, and ceo")
+        self.logger.info("Spec sent to engineer and ceo")
 
     def _parse_json(self, raw: str) -> dict:
         cleaned = raw.strip()

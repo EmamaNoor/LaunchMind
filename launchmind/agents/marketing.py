@@ -34,7 +34,7 @@ class MarketingAgent(Agent):
         super().__init__("marketing", bus, settings)
 
     def handle_message(self, message: Message) -> None:
-        if message.message_type in (MessageType.TASK, MessageType.RESULT):
+        if message.message_type == MessageType.TASK:
             spec = message.payload
             copy = self._generate_copy(spec)
             self._send_cold_email(copy)
