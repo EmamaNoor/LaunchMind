@@ -10,78 +10,22 @@ from launchmind.services import github, vercel
 
 logger = logging.getLogger(__name__)
 
-HTML_SYSTEM = """You are a senior frontend engineer. Generate a single-file HTML landing page using EXACTLY the design system below. Do not deviate from these CSS values.
+HTML_SYSTEM = """You are a senior software engineer. Generate a clean, professional, modern single-file HTML landing page for the given startup idea. Use the product spec provided to populate all content. Inline all CSS. No external dependencies. No empty fields. No placeholder text. The page should look like something a real startup would ship.
 
-USE THIS EXACT CSS FOUNDATION — do not change these values:
+The page must include:
+- A hero section with a short, punchy headline and a one-sentence subheadline
+- A features section listing the product's key features
+- A "How it Works" section with 3 concise steps
+- A call-to-action section with a button
 
-:root {
-  --bg: #ffffff;
-  --bg-subtle: #f7f7f7;
-  --border: #e5e5e5;
-  --text-primary: #111111;
-  --text-secondary: #555555;
-  --text-muted: #888888;
-  --accent: #2563eb;
-  --accent-hover: #1d4ed8;
-  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-  --radius: 8px;
-  --max-width: 1080px;
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: var(--font); background: var(--bg); color: var(--text-primary); font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
-.container { max-width: var(--max-width); margin: 0 auto; padding: 0 24px; }
-
-/* Nav */
-nav { border-bottom: 1px solid var(--border); padding: 18px 0; }
-nav .container { display: flex; align-items: center; justify-content: space-between; }
-nav .logo { font-size: 17px; font-weight: 700; color: var(--text-primary); text-decoration: none; }
-nav .btn-nav { background: var(--accent); color: #fff; padding: 9px 20px; border-radius: var(--radius); font-size: 14px; font-weight: 600; text-decoration: none; border: none; cursor: pointer; }
-nav .btn-nav:hover { background: var(--accent-hover); }
-
-/* Hero */
-.hero { padding: 96px 0 80px; text-align: center; }
-.hero h1 { font-size: 52px; font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; color: var(--text-primary); max-width: 720px; margin: 0 auto 20px; }
-.hero p { font-size: 19px; color: var(--text-secondary); max-width: 520px; margin: 0 auto 36px; line-height: 1.6; }
-.btn-primary { display: inline-block; background: var(--accent); color: #fff; padding: 13px 28px; border-radius: var(--radius); font-size: 16px; font-weight: 600; text-decoration: none; border: none; cursor: pointer; }
-.btn-primary:hover { background: var(--accent-hover); }
-
-/* Features */
-.features { padding: 80px 0; background: var(--bg-subtle); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-.features h2 { font-size: 28px; font-weight: 700; text-align: center; margin-bottom: 48px; letter-spacing: -0.01em; }
-.features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-.feature-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px 24px; }
-.feature-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--text-primary); }
-.feature-card p { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
-
-/* Footer */
-footer { padding: 40px 0; text-align: center; }
-footer .logo { font-size: 15px; font-weight: 700; color: var(--text-primary); }
-footer p { font-size: 13px; color: var(--text-muted); margin-top: 6px; }
-
-/* Responsive */
-@media (max-width: 768px) {
-  .hero h1 { font-size: 34px; }
-  .hero p { font-size: 16px; }
-  .features-grid { grid-template-columns: 1fr; }
-}
-
-REQUIRED HTML STRUCTURE (4 sections, in this order):
-1. <nav> — logo (product name) left, one "Get Started" button right
-2. <section class="hero"> — h1 headline, p subheadline, one CTA button
-3. <section class="features"> — h2 title, grid of feature cards (one per feature in spec)
-4. <footer> — logo + tagline
-
-STRICT RULES:
-- Use ONLY the CSS variables and classes defined above. No extra colors, fonts, or sizes.
-- No gradients, shadows, animations, icons, emojis, or images.
-- No inline styles except where a CSS class genuinely cannot cover it.
+Rules:
+- All text content must come from the product spec. Never invent placeholder copy or leave fields empty.
+- Do not include <form>, <input>, <textarea>, or <select> elements. This is a static marketing page.
+- Inline all CSS inside a <style> tag in <head>. No external stylesheets or scripts.
+- Output a complete valid HTML5 document starting with <!DOCTYPE html>.
 - Never use em dashes (—). Use commas or periods instead.
-- No AI filler words: "revolutionize", "game-changer", "seamless", "cutting-edge", "empower", "unlock", "streamline", "harness", "supercharge".
-- No placeholder text like [Name], [Company], [Date].
-- Write copy like a human: direct, specific, plain English.
-
-Return ONLY the raw HTML. No markdown, no code fences, no explanation."""
+- Never use AI filler words: "revolutionize", "game-changer", "seamless", "cutting-edge", "empower", "unlock", "streamline", "harness", "supercharge", "transformative", "innovative", "leverage", "synergy".
+- Return ONLY the raw HTML. No markdown, no code fences, no explanation."""
 
 ISSUE_SYSTEM = """You are a senior engineer. Write a GitHub issue description for creating an initial landing page.
 
