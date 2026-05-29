@@ -56,8 +56,9 @@ def _print_summary(summary: dict) -> None:
     print("ENGINEER OUTPUT")
     print("=" * 60)
     eng = summary["phases"].get("engineer", {})
-    print(f"PR:    {eng.get('pr_url', 'N/A')}")
-    print(f"Issue: {eng.get('issue_url', 'N/A')}")
+    print(f"PR:     {eng.get('pr_url', 'N/A')}")
+    print(f"Issue:  {eng.get('issue_url', 'N/A')}")
+    print(f"Vercel: {eng.get('vercel_url', 'N/A')}")
 
     print("\n" + "=" * 60)
     print("MARKETING COPY")

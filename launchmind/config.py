@@ -14,3 +14,4 @@ class Settings(BaseSettings):
     SENDGRID_API_KEY: str = ""
     SENDGRID_FROM_EMAIL: str = ""
     TEST_EMAIL: str = ""
+    VERCEL_TOKEN: str = ""

@@ -11,7 +11,13 @@ logger = logging.getLogger(__name__)
 
 COPY_SYSTEM = """You are a senior growth marketer. Given a product spec, generate compelling marketing copy.
 
-IMPORTANT: Never use placeholder brackets like [YOUR NAME], [COMPANY], [DATE], etc. Write fully completed copy ready to send as-is. Sign emails as "The {product name} Team".
+Writing rules (strictly enforced):
+- Never use em dashes (—). Use commas, periods, or rewrite the sentence instead.
+- Never use placeholder brackets like [YOUR NAME], [COMPANY], [DATE], [First Name], etc. Write fully completed copy ready to send as-is.
+- No AI buzzwords or filler: do not use "revolutionize", "game-changer", "transform", "leverage", "seamless", "cutting-edge", "robust", "empower", "unlock", "journey", "streamline", "supercharge".
+- Write like a human copywriter: direct, specific, plain English.
+- Cold emails must open with "Hi there," — never a placeholder name.
+- Sign off emails as "The [actual product name] Team" — use the real product name, no brackets.
 
 Respond with ONLY valid JSON (no markdown, no code fences):
 {
@@ -19,7 +25,7 @@ Respond with ONLY valid JSON (no markdown, no code fences):
   "description": "2-3 sentences describing the product clearly.",
   "cold_email": {
     "subject": "Email subject line",
-    "body": "Cold outreach email body targeting a potential user or investor. 3-4 short paragraphs. Include a clear CTA. Sign off as The [Product] Team — use the actual product name, no brackets."
+    "body": "Cold outreach email body targeting a potential user or investor. Open with Hi there, — then 3-4 short paragraphs. Include a clear CTA. Sign off as The [actual product name] Team."
   },
   "social_posts": {
     "twitter": "Under 280 chars. Hook + value + CTA.",

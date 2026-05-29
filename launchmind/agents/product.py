@@ -12,6 +12,7 @@ SPEC_SYSTEM = """You are a senior product manager. Given a startup idea and focu
 
 Respond with ONLY valid JSON (no markdown, no code fences) in this exact format:
 {
+  "name": "1-2 word product name, PascalCase, no spaces (e.g. HarvestLink, HRShared, TaskFlow)",
   "value_proposition": "One sentence: what the product does and for whom",
   "personas": [
     {"name": "Persona Name", "role": "Their role", "pain_point": "Their main pain point"}

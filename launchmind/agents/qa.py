@@ -96,10 +96,11 @@ class QAAgent(Agent):
         if not branch:
             return None
         try:
+            file_path = engineer_output.get("file_path", "index.html")
             return github.get_file_content(
                 self.settings.GITHUB_TOKEN,
                 self.settings.GITHUB_LANDING_REPO,
-                "index.html",
+                file_path,
                 branch,
             )
         except Exception:
@@ -109,7 +110,8 @@ class QAAgent(Agent):
     def _post_github_review(self, review: dict, pr_url: str, engineer_output: dict) -> str | None:
         try:
             pr_number = int(pr_url.rstrip("/").split("/")[-1])
-            branch = engineer_output.get("branch", "agent-landing-page")
+            branch = engineer_output.get("branch", "")
+            file_path = engineer_output.get("file_path", "index.html")
             commit_id = github.get_default_branch_sha(
                 self.settings.GITHUB_TOKEN,
                 self.settings.GITHUB_LANDING_REPO,
@@ -127,7 +129,7 @@ class QAAgent(Agent):
                 desc = f"**[{issue.get('severity', 'minor').upper()}]** {issue.get('description', '')}"
                 if issue.get("type") == "html" and isinstance(line, int) and line > 0:
                     inline_comments.append({
-                        "path": "index.html",
+                        "path": file_path,
                         "line": line,
                         "side": "RIGHT",
                         "body": desc,
@@ -136,15 +138,27 @@ class QAAgent(Agent):
                     body_lines.append(f"- {desc}")
 
             body = "\n".join(body_lines).strip()
-            return github.create_review(
-                self.settings.GITHUB_TOKEN,
-                self.settings.GITHUB_LANDING_REPO,
-                pr_number,
-                commit_id,
-                body,
-                event,
-                inline_comments,
-            )
+            try:
+                return github.create_review(
+                    self.settings.GITHUB_TOKEN,
+                    self.settings.GITHUB_LANDING_REPO,
+                    pr_number,
+                    commit_id,
+                    body,
+                    event,
+                    inline_comments,
+                )
+            except Exception:
+                self.logger.warning("Inline review failed — retrying with body-only review")
+                return github.create_review(
+                    self.settings.GITHUB_TOKEN,
+                    self.settings.GITHUB_LANDING_REPO,
+                    pr_number,
+                    commit_id,
+                    body,
+                    event,
+                    [],
+                )
         except Exception:
             self.logger.exception("GitHub review post failed — continuing")
             return None
