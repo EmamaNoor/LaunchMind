@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LaunchMind</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #09090b;
+    color: #fafafa;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 480px;
+    padding: 32px 24px;
+  }
+
+  .brand {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .brand h1 {
+    font-size: 2.4rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    background: linear-gradient(135deg, #fff 0%, #a78bfa 50%, #818cf8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .brand p {
+    color: #52525b;
+    margin-top: 6px;
+    font-size: 0.9rem;
+  }
+
+  /* Input */
+  #idea-input {
+    width: 100%;
+    padding: 16px 18px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    line-height: 1.5;
+    border: 1px solid #27272a;
+    border-radius: 12px;
+    background: #18181b;
+    color: #fafafa;
+    outline: none;
+    resize: none;
+    min-height: 80px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  #idea-input:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+  }
+  #idea-input::placeholder { color: #3f3f46; }
+
+  #launch-btn {
+    width: 100%;
+    margin-top: 12px;
+    margin-bottom: 40px;
+    padding: 14px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-family: inherit;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #fff;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  #launch-btn:hover { opacity: 0.9; }
+  #launch-btn:active { transform: scale(0.99); }
+  #launch-btn:disabled {
+    background: #27272a;
+    color: #52525b;
+    cursor: not-allowed;
+    opacity: 1;
+  }
+
+  .hidden { display: none !important; }
+
+  /* Progress */
+  .phase-list { display: flex; flex-direction: column; gap: 6px; }
+
+  .phase {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    background: #18181b;
+    border: 1px solid #27272a;
+    max-height: 60px;
+    opacity: 1;
+    overflow: hidden;
+    transition: opacity 0.5s ease, max-height 0.5s ease, padding 0.5s ease,
+                margin 0.5s ease, border-color 0.3s ease, background 0.3s ease;
+  }
+  .phase.gone {
+    opacity: 0;
+    max-height: 0;
+    padding: 0 18px;
+    margin: 0;
+    border-color: transparent;
+  }
+  .phase.active {
+    border-color: #6366f150;
+    background: #6366f108;
+  }
+
+  .phase-dot {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .phase.pending .phase-dot { background: #27272a; }
+  .phase.pending .phase-dot::after {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #3f3f46;
+  }
+
+  .phase.active .phase-dot { background: #6366f120; }
+  .phase.active .phase-dot::after {
+    content: '';
+    width: 12px;
+    height: 12px;
+    border: 2px solid #52525b;
+    border-top-color: #a78bfa;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .phase-label {
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: #71717a;
+    transition: color 0.3s;
+  }
+  .phase.active .phase-label { color: #d4d4d8; }
+
+  /* Results */
+  #results {
+    animation: fadeUp 0.6s ease;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .link-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    margin-bottom: 8px;
+    border-radius: 12px;
+    background: #18181b;
+    border: 1px solid #27272a;
+    text-decoration: none;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .link-card:hover {
+    border-color: #3f3f46;
+    background: #1f1f23;
+  }
+
+  .link-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .link-icon.pr { background: #27272a; }
+  .link-icon.live { background: #22c55e12; }
+  .link-icon svg { width: 18px; height: 18px; }
+
+  .link-text { flex: 1; min-width: 0; }
+  .link-label {
+    font-size: 0.75rem;
+    color: #52525b;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+  }
+  .link-url {
+    font-size: 0.85rem;
+    color: #a78bfa;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .link-card:hover .link-url { color: #c4b5fd; }
+
+  .link-arrow {
+    color: #3f3f46;
+    flex-shrink: 0;
+    transition: color 0.2s, transform 0.2s;
+  }
+  .link-card:hover .link-arrow {
+    color: #71717a;
+    transform: translateX(2px);
+  }
+
+  .error-box {
+    padding: 14px 18px;
+    border-radius: 12px;
+    background: #450a0a18;
+    border: 1px solid #dc262625;
+    color: #fca5a5;
+    font-size: 0.9rem;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="brand">
+    <h1>LaunchMind</h1>
+    <p>Describe your startup idea. We'll handle the rest.</p>
+  </div>
+
+  <textarea id="idea-input" rows="3" placeholder="A marketplace where local farmers sell surplus produce to nearby restaurants..."></textarea>
+  <button id="launch-btn" onclick="launch()">Launch</button>
+
+  <div id="progress" class="hidden">
+    <div class="phase-list" id="phase-list"></div>
+  </div>
+
+  <div id="results" class="hidden"></div>
+  <div id="error" class="hidden"></div>
+</div>
+
+<script>
+const API_URL = 'http://localhost:8000';
+const PHASES = ['decompose', 'product', 'engineer', 'marketing', 'qa'];
+const LABELS = {
+  decompose: 'Breaking down the idea',
+  product: 'Generating product spec',
+  engineer: 'Building landing page & PR',
+  marketing: 'Creating marketing copy',
+  qa: 'Running QA review'
+};
+
+let pollTimer = null;
+let prevCompleted = [];
+
+async function launch() {
+  const input = document.getElementById('idea-input');
+  const btn = document.getElementById('launch-btn');
+  const idea = input.value.trim();
+  if (idea.length < 10) { input.focus(); return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Running...';
+  document.getElementById('results').classList.add('hidden');
+  document.getElementById('results').innerHTML = '';
+  document.getElementById('error').classList.add('hidden');
+  document.getElementById('error').innerHTML = '';
+  prevCompleted = [];
+
+  buildPhases();
+  document.getElementById('progress').classList.remove('hidden');
+
+  try {
+    const res = await fetch(API_URL + '/api/runs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idea: idea })
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(function() { return {}; });
+      throw new Error(err.detail || 'Failed to start run');
+    }
+    const data = await res.json();
+    startPolling(data.run_id);
+  } catch (e) {
+    showError(e.message);
+    resetForm();
+  }
+}
+
+function buildPhases() {
+  document.getElementById('phase-list').innerHTML = PHASES.map(function(p) {
+    return '<div class="phase pending" id="phase-' + p + '"><div class="phase-dot"></div><span class="phase-label">' + LABELS[p] + '</span></div>';
+  }).join('');
+}
+
+function startPolling(runId) {
+  pollTimer = setInterval(async function() {
+    try {
+      const res = await fetch(API_URL + '/api/runs/' + runId);
+      if (!res.ok) return;
+      const status = await res.json();
+      var completed = status.phases_completed || [];
+      var current = status.current_phase || '';
+
+      updatePhases(completed, current);
+
+      if (status.status === 'completed') {
+        clearInterval(pollTimer);
+        collapseAllPhases(function() {
+          renderResults(status.result);
+        });
+        resetForm();
+      } else if (status.status === 'failed') {
+        clearInterval(pollTimer);
+        showError(status.error || 'Pipeline failed');
+        resetForm();
+      }
+    } catch (e) {
+      clearInterval(pollTimer);
+      showError('Lost connection to server');
+      resetForm();
+    }
+  }, 3000);
+}
+
+function updatePhases(completed, current) {
+  // Fade out newly completed phases
+  completed.forEach(function(p) {
+    if (prevCompleted.indexOf(p) === -1) {
+      var el = document.getElementById('phase-' + p);
+      if (el) {
+        el.className = 'phase gone';
+      }
+    }
+  });
+  prevCompleted = completed.slice();
+
+  // Mark active
+  PHASES.forEach(function(p) {
+    if (completed.indexOf(p) !== -1) return;
+    var el = document.getElementById('phase-' + p);
+    if (!el) return;
+    if (p === current) {
+      el.className = 'phase active';
+    } else {
+      el.className = 'phase pending';
+    }
+  });
+}
+
+function collapseAllPhases(cb) {
+  PHASES.forEach(function(p) {
+    var el = document.getElementById('phase-' + p);
+    if (el) el.className = 'phase gone';
+  });
+  setTimeout(cb, 600);
+}
+
+function renderResults(result) {
+  var el = document.getElementById('results');
+  el.classList.remove('hidden');
+
+  var pr = result && result.engineer && result.engineer.pr_url;
+  var live = result && result.engineer && result.engineer.vercel_url;
+  var html = '';
+
+  if (live) {
+    html += '<a class="link-card" href="' + esc(live) + '" target="_blank">'
+      + '<div class="link-icon live"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>'
+      + '<div class="link-text"><div class="link-label">Live Site</div><div class="link-url">' + esc(live) + '</div></div>'
+      + '<svg class="link-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>'
+      + '</a>';
+  }
+
+  if (pr) {
+    html += '<a class="link-card" href="' + esc(pr) + '" target="_blank">'
+      + '<div class="link-icon pr"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><line x1="6" y1="9" x2="6" y2="21"/></svg></div>'
+      + '<div class="link-text"><div class="link-label">Pull Request</div><div class="link-url">' + esc(pr) + '</div></div>'
+      + '<svg class="link-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>'
+      + '</a>';
+  }
+
+  if (!html) {
+    html = '<div class="error-box">Completed but no links were generated.</div>';
+  }
+
+  el.innerHTML = html;
+}
+
+function showError(msg) {
+  var el = document.getElementById('error');
+  el.classList.remove('hidden');
+  el.innerHTML = '<div class="error-box">' + esc(msg) + '</div>';
+}
+
+function resetForm() {
+  document.getElementById('launch-btn').disabled = false;
+  document.getElementById('launch-btn').textContent = 'Launch';
+}
+
+function esc(s) {
+  if (!s) return '';
+  var d = document.createElement('div');
+  d.textContent = String(s);
+  return d.innerHTML;
+}
+</script>
+</body>
+</html>

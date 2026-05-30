@@ -7,6 +7,7 @@
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)](https://python.org)
 [![DeepSeek](https://img.shields.io/badge/DeepSeek-API-4D6BFF?logo=openai&logoColor=white)](https://platform.deepseek.com)
 [![Redis](https://img.shields.io/badge/Upstash-Redis-DC382D?logo=redis&logoColor=white)](https://upstash.com)
+[![FastAPI](https://img.shields.io/badge/FastAPI-API-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![Pydantic](https://img.shields.io/badge/Pydantic-v2-E92063?logo=pydantic&logoColor=white)](https://docs.pydantic.dev)
 [![SendGrid](https://img.shields.io/badge/SendGrid-Email-1A82E2?logo=twilio&logoColor=white)](https://sendgrid.com)
 [![Slack](https://img.shields.io/badge/Slack-Bot-4A154B?logo=slack&logoColor=white)](https://api.slack.com)
@@ -30,6 +31,9 @@ Give it a startup idea. Five AI agents collaborate to produce a product spec, a 
 - [Usage](#usage)
 - [Example Output](#example-output)
 - [Viewing the Landing Page](#viewing-the-landing-page)
+- [Web Interface](#web-interface)
+- [API](#api)
+- [Deployment](#deployment)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -126,6 +130,8 @@ Every external API call is wrapped with retry logic and exponential backoff. Mes
 | Email | SendGrid |
 | Notifications | Slack Block Kit API |
 | Validation | Pydantic v2 + pydantic-settings |
+| API Server | FastAPI + Uvicorn |
+| Frontend | Single-file HTML (no build step) |
 | Runtime | Python 3.11+ |
 | Package Manager | uv |
 
@@ -152,10 +158,17 @@ uv sync
 # Create .env and fill in your API credentials
 ```
 
-Edit `.env` with your API credentials (see [Environment Variables](#environment-variables)), then run:
+Edit `.env` with your API credentials (see [Environment Variables](#environment-variables)), then run via CLI or web:
 
 ```bash
+# CLI
 uv run python -m launchmind "Your startup idea here"
+
+# Web (API + frontend)
+uv run uvicorn launchmind.api:app --host 127.0.0.1 --port 8000
+# Then open frontend/index.html or serve it:
+uv run python -m http.server 3000 --directory frontend
+# Visit http://localhost:3000
 ```
 
 ---
@@ -170,7 +183,8 @@ Create a `.env` file in the project root with the following:
 | `UPSTASH_REDIS_URL` | Yes | Redis connection URL from [Upstash Console](https://console.upstash.com) |
 | `GITHUB_TOKEN` | Yes | GitHub personal access token with `repo` scope |
 | `GITHUB_LANDING_REPO` | Yes | Target repo for landing pages (e.g., `EmamaNoor/LaunchMind-LandingPages`) |
-| `VERCEL_TOKEN` | No | Vercel API token for automatic landing page deployment. If omitted, the Vercel deploy step is skipped |
+| `VERCEL_TOKEN` | No | Vercel API token for automatic landing page deployment. If omitted, the deploy step is skipped |
+| `FRONTEND_URL` | No | Allowed CORS origin for the web frontend (default: `http://localhost:3000`). Set to your Vercel frontend URL in production |
 | `SLACK_BOT_TOKEN` | Yes | Slack bot token (`xoxb-...`) from your [Slack App](https://api.slack.com/apps) |
 | `SLACK_CHANNEL` | No | Slack channel to post to (default: `#launches`) |
 | `SENDGRID_API_KEY` | Yes | API key from [SendGrid](https://app.sendgrid.com/settings/api_keys) |
@@ -198,11 +212,15 @@ launchmind/
     github.py            <- GitHub REST API: issues, branches, commits, PRs, reviews
     slack.py             <- Slack Block Kit message posting
     email.py             <- SendGrid cold email delivery
+  api.py                 <- FastAPI server: POST /api/runs, GET /api/runs/{id}
+  run_manager.py         <- Background pipeline runner with Redis-backed progress tracking
   config.py              <- Settings loaded from .env via pydantic-settings
   utils.py               <- Retry decorator with exponential backoff, ID generator
   logging_config.py      <- Structured logging setup
-  app.py                 <- Entry point: wires all agents, runs ceo.run()
+  app.py                 <- CLI entry point + run_pipeline() shared logic
   __main__.py            <- Enables python -m launchmind
+frontend/
+  index.html             <- Minimal web UI: submit idea, see progress, get links
 pyproject.toml           <- Dependencies and project metadata
 ```
 
@@ -256,6 +274,63 @@ Commit:  Live at: https://streeteats.vercel.app
 ```
 
 A GitHub issue and pull request are also opened automatically for review.
+
+---
+
+## Web Interface
+
+LaunchMind includes a minimal HTML frontend (`frontend/index.html`) that connects to the API. No build step, no dependencies.
+
+1. Start the API server: `uv run uvicorn launchmind.api:app --host 127.0.0.1 --port 8000`
+2. Serve the frontend: `uv run python -m http.server 3000 --directory frontend`
+3. Open `http://localhost:3000`, type a startup idea, click **Launch**
+
+The UI shows a progress stepper that fades out each phase as it completes. When the pipeline finishes, you get two clickable links: the **live Vercel URL** and the **GitHub PR**.
+
+---
+
+## API
+
+The FastAPI server wraps the agent pipeline for web access. The pipeline takes ~2 minutes, so it uses a fire-and-forget pattern:
+
+| Method | Endpoint | Description |
+|:---|:---|:---|
+| `POST` | `/api/runs` | Start a run. Body: `{"idea": "..."}`. Returns `{"run_id": "..."}` immediately |
+| `GET` | `/api/runs/{run_id}` | Poll for status, progress %, completed phases, and results |
+| `GET` | `/api/runs/{run_id}/events` | Get ordered progress events. Use `?after=N` for incremental polling |
+| `GET` | `/api/health` | Health check (Redis connectivity) |
+
+Run state and progress events are stored in Upstash Redis with a 1-hour TTL. A concurrency guard limits the server to 2 simultaneous runs.
+
+```bash
+# Start the server
+uv run uvicorn launchmind.api:app --host 127.0.0.1 --port 8000
+
+# Start a run
+curl -X POST http://localhost:8000/api/runs \
+  -H "Content-Type: application/json" \
+  -d '{"idea": "A marketplace for local farmers"}'
+
+# Poll for results
+curl http://localhost:8000/api/runs/<run_id>
+```
+
+---
+
+## Deployment
+
+**Backend (Render)**
+
+Deploy as a Python web service on [Render](https://render.com):
+
+- Build command: `pip install .`
+- Start command: `uvicorn launchmind.api:app --host 0.0.0.0 --port $PORT`
+- Set all environment variables from `.env` in the Render dashboard
+- Set `FRONTEND_URL` to your frontend's production URL
+
+**Frontend (Vercel or any static host)**
+
+The frontend is a single HTML file. Deploy `frontend/` to [Vercel](https://vercel.com), Netlify, or any static host. Update the `API_URL` constant at the top of the `<script>` in `index.html` to point to your Render backend URL.
 
 ---
 
