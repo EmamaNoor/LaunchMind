@@ -12,6 +12,8 @@ dependencies = [
     "pydantic-settings",
     "python-dotenv",
     "sendgrid",
+    "fastapi",
+    "uvicorn[standard]",
 ]
 
 [project.scripts]

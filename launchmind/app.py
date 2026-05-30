@@ -15,15 +15,10 @@ from launchmind.agents.qa import QAAgent
 logger = logging.getLogger(__name__)
 
 
-def main():
-    setup_logging()
+def run_pipeline(idea: str, settings: Settings | None = None) -> dict:
+    if settings is None:
+        settings = Settings()
 
-    if len(sys.argv) < 2:
-        print("Usage: python -m launchmind \"Your startup idea here\"")
-        sys.exit(1)
-
-    idea = sys.argv[1]
-    settings = Settings()
     bus = MessageBus(settings.UPSTASH_REDIS_URL)
     bus.clear()
 
@@ -40,10 +35,23 @@ def main():
         threading.Thread(target=agent.listen, daemon=True).start()
 
     summary = ceo.run(idea)
-    _print_summary(summary)
 
     for agent in agents:
         agent.stop()
+
+    return summary
+
+
+def main():
+    setup_logging()
+
+    if len(sys.argv) < 2:
+        print("Usage: python -m launchmind \"Your startup idea here\"")
+        sys.exit(1)
+
+    idea = sys.argv[1]
+    summary = run_pipeline(idea)
+    _print_summary(summary)
 
 
 def _print_summary(summary: dict) -> None:

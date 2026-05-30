@@ -15,3 +15,4 @@ class Settings(BaseSettings):
     SENDGRID_FROM_EMAIL: str = ""
     TEST_EMAIL: str = ""
     VERCEL_TOKEN: str = ""
+    FRONTEND_URL: str = "http://localhost:3000"
