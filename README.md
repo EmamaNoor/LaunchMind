@@ -11,7 +11,7 @@
 
 Give it a startup idea. Five AI agents collaborate to produce a product spec, a deployed landing page with a GitHub PR, cold outreach emails, Slack announcements and a QA code review. All autonomously.
 
-[Live Demo](https://launch-mind.vercel.app)
+[Live Demo](https://launch-mind.vercel.app) &middot; [Landing Pages](https://github.com/EmamaNoor/LaunchMind-LandingPages)
 
 </div>
 
