@@ -32,6 +32,28 @@ def deploy_static(token: str, html_content: str, project_name: str = "launchmind
     deployment_id = data["id"]
     raw_url = f"https://{data['url']}"
 
+    # Disable Vercel Authentication (Deployment Protection) for the project
+    # to ensure the landing pages are publicly accessible without login/requesting access
+    try:
+        patch_url = f"https://api.vercel.com/v9/projects/{project_name}"
+        pr = requests.patch(
+            patch_url,
+            headers=headers,
+            json={
+                "ssoProtection": None,
+                "passwordProtection": None,
+            },
+        )
+        if pr.ok:
+            logger.info("Successfully disabled Vercel Authentication / Deployment Protection for project %s", project_name)
+        else:
+            logger.warning(
+                "Failed to disable Vercel Authentication for project %s: %s %s",
+                project_name, pr.status_code, pr.text
+            )
+    except Exception as e:
+        logger.exception("Error while trying to disable Vercel Authentication for project %s: %s", project_name, e)
+
     alias = f"{project_name}.vercel.app"
     ar = requests.post(
         f"https://api.vercel.com/v2/deployments/{deployment_id}/aliases",
